@@ -1,3 +1,4 @@
+using InvoiceData.Repository;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

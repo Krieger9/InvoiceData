@@ -1,6 +1,10 @@
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
+using InvoiceData.Models;
+using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 
+namespace InvoiceData.Repository
+{
     public interface IInvoiceRepository
     {
         Task<IEnumerable<Invoice>> GetAllAsync();
@@ -9,4 +13,4 @@
         Task UpdateAsync(Invoice invoice);
         Task DeleteAsync(string id);
     }
-    
+}

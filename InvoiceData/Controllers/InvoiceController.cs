@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using InvoiceData.Models;
+using InvoiceData.Repository;
+using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,20 +10,26 @@ namespace InvoiceData.Controllers
     [ApiController]
     public class InvoiceController : ControllerBase
     {
-        private static List<Invoice> Invoices = new List<Invoice>();
+        private readonly IInvoiceRepository _invoiceRepository;
+
+        public InvoiceController(IInvoiceRepository invoiceRepository)
+        {
+            _invoiceRepository = invoiceRepository;
+        }
 
         // GET: api/<InvoiceController>
         [HttpGet]
-        public ActionResult<IEnumerable<Invoice>> Get()
+        public async Task<ActionResult<IEnumerable<Invoice>>> Get()
         {
-            return Ok(Invoices);
+            var invoices = await _invoiceRepository.GetAllAsync();
+            return Ok(invoices);
         }
 
         // GET api/<InvoiceController>/5
         [HttpGet("{id}")]
-        public ActionResult<Invoice> Get(string id)
+        public async Task<ActionResult<Invoice>> Get(string id)
         {
-            var invoice = Invoices.FirstOrDefault(i => i.InvoiceNumber == id);
+            var invoice = await _invoiceRepository.GetByIdAsync(id);
             if (invoice == null)
             {
                 return NotFound();
@@ -31,45 +39,40 @@ namespace InvoiceData.Controllers
 
         // POST api/<InvoiceController>
         [HttpPost]
-        public ActionResult Post([FromBody] Invoice invoice)
+        public async Task<ActionResult> Post([FromBody] Invoice invoice)
         {
             if (invoice == null)
             {
                 return BadRequest();
             }
-            Invoices.Add(invoice);
+            await _invoiceRepository.AddAsync(invoice);
             return CreatedAtAction(nameof(Get), new { id = invoice.InvoiceNumber }, invoice);
         }
 
         // PUT api/<InvoiceController>/5
         [HttpPut("{id}")]
-        public ActionResult Put(string id, [FromBody] Invoice updatedInvoice)
+        public async Task<ActionResult> Put(string id, [FromBody] Invoice updatedInvoice)
         {
-            var invoice = Invoices.FirstOrDefault(i => i.InvoiceNumber == id);
+            var invoice = await _invoiceRepository.GetByIdAsync(id);
             if (invoice == null)
             {
                 return NotFound();
             }
-            invoice.DateIssued = updatedInvoice.DateIssued;
-            invoice.DueDate = updatedInvoice.DueDate;
-            invoice.BillTo = updatedInvoice.BillTo;
-            invoice.Items = updatedInvoice.Items;
-            invoice.Subtotal = updatedInvoice.Subtotal;
-            invoice.SalesTax = updatedInvoice.SalesTax;
-            invoice.TotalAmountDue = updatedInvoice.TotalAmountDue;
+            updatedInvoice.InvoiceNumber = id;
+            await _invoiceRepository.UpdateAsync(updatedInvoice);
             return NoContent();
         }
 
         // DELETE api/<InvoiceController>/5
         [HttpDelete("{id}")]
-        public ActionResult Delete(string id)
+        public async Task<ActionResult> Delete(string id)
         {
-            var invoice = Invoices.FirstOrDefault(i => i.InvoiceNumber == id);
+            var invoice = await _invoiceRepository.GetByIdAsync(id);
             if (invoice == null)
             {
                 return NotFound();
             }
-            Invoices.Remove(invoice);
+            await _invoiceRepository.DeleteAsync(id);
             return NoContent();
         }
     }

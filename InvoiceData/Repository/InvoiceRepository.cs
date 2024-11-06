@@ -1,4 +1,6 @@
-    using Microsoft.EntityFrameworkCore;
+using InvoiceData.Models;
+using InvoiceData.Repository;
+using Microsoft.EntityFrameworkCore;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
